@@ -1,0 +1,14 @@
+ip-resolver:
+    url-pattern: http://freegeoip.net/json/{ip}
+    default-country: LV
+
+loan:
+    window-duration: PT1M # duration pattern based on ISO-8601
+    max-applications-per-window: 10
+
+spring.datasource:
+    url: jdbc:postgresql://localhost:5432/?currentSchema=test
+    username: postgres
+    password:
+
+spring.jackson.serialization.write-dates-as-timestamps: false

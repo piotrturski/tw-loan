@@ -1,0 +1,42 @@
+plugins { id 'org.springframework.boot' version '1.5.7.RELEASE' }
+
+apply plugin: 'java'
+sourceCompatibility = 1.8
+repositories { mavenCentral() }
+
+dependencies {
+    compile 'com.netflix.ribbon:ribbon:2.0-RC1'
+    compile 'org.springframework.boot:spring-boot-starter-undertow'
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+    compile 'org.springframework.cloud:spring-cloud-starter-hystrix'
+    compile 'org.springframework.boot:spring-boot-starter-actuator'
+    compile 'org.flywaydb:flyway-core:4.0'
+    compile 'one.util:streamex:0.6.5'
+    compile 'org.eclipse.collections:eclipse-collections:8.2.0'
+
+    runtime 'org.postgresql:postgresql:9.4.1212'
+
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+
+    testCompile "net.piotrturski.testegration:postgres:0.0.2-beta"
+
+    compileOnly 'org.projectlombok:lombok:1.16.14'
+
+    testCompile 'com.googlecode.zohhak:zohhak:1.1.1'
+        testCompile 'com.google.guava:guava:21.0'
+        testCompile 'org.assertj:assertj-core:3.7.0'
+
+    testCompile "net.piotrturski.testegration:postgres:0.0.2-beta"
+    testCompile 'io.rest-assured:rest-assured:3.0.3'
+}
+
+configurations {
+    all*.exclude module: 'slf4j-log4j12'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:Dalston.SR3"
+    }
+}

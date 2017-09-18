@@ -1,0 +1,89 @@
+image:https://travis-ci.org/piotrturski/tw-loan.svg?branch=master["Build Status",
+link="https://travis-ci.org/piotrturski/tw-loan"]
+
+# Overview
+
+java 8, spring cloud, flyway, rxJava, gradle, lombok,
+postgres, undertow, freegeoip.net
+
+# Build, test, run
+
+It's a standard spring-boot & gradle project
+
+## Build and run unit and integration tests
+For integration tests, it will use running postgres or start one.
+----
+./gradlew build
+----
+It runs on travis.
+
+## Deploy / run
+It will honor all standard configuration options of
+spring-boot and archaius (for hystrix).
+
+Of course it's not connected to any configuration server so
+it will use sample `applicaton.yml` provided inside jar.
+----
+docker run --rm -d -p 5432:5432  postgres:9.6.5-alpine
+java -jar build/libs/*.jar
+----
+
+## Verify
+
+----
+curl -H "content-type:application/json" -d '{"term":1,"amount":25.43,"personalId":7, \
+"name":"john","surname":"doe"}' http://localhost:8080/v1/apply-for-loan
+----
+In case jvm wasn't warmed-up and hystrix timeout kicked-off, try again.
+
+# Unspecified parts
+
+- the spec doesn't say anything about API for blacklisting users so
+all the blacklisted users are placed in the DB by migration scripts
+
+- the spec is inconsistent regarding rejecting applications.
+'N application / second' vs ' limit number [...] applications [...] in a given timeframe'.
+These are two different things.
+The first one is a global average and the second one is sliding window.
+I implemented the sliding window as the global average seems to be less reasonable and
+is prone to DoS attacks.
+
+- there is no behind the proxy IP checking (X-Forwarded-For header)
+as there is no such
+request in the spec and users who really want to hide their IP can use anonymous
+proxy or tor.
+
+- spec doesn't says what's `term` so I assume it's an id of some predefined / stored terms.
+
+# Design decisions
+
+- postgres - offered by all main cloud providers, powerful queries, migration tools
+
+- default isolation level is not serializable so,
+if you are unlucky, you
+actually may have more than permitted per window
+
+- no hibernate - much easier to migrate to NoSql;
+way faster DB tests
+
+# What's not done
+
+Because of lack of time, laziness, no existing infrastructure,
+lack of specification and thousands other excuses,
+some things were not done but sometimes could be useful:
+
+- jvm warm-up scripts
+- event store
+- reactive storage access
+- request grouping
+- loadbalancing for rest client
+- use some better scalable NoSql
+- return accepted application as SSE instead of a list
+- variable & configurable thread pool size
+- runtime changing of IP resolution providers
+- correlation id
+- runtime documentation on main page (like HATEOAS or swagger)
+- better error messages for typical http errors (like unacceptable content-type etc)
+- configuration discovery
+- GC tuning and benchmarking
+- input/output compression, optimization
